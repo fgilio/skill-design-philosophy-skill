@@ -89,6 +89,24 @@ Each skill is a self-contained unit. No external package dependencies, no build 
 
 Share code within a skill freely (e.g., a `lib.ts` for auth and validation). Never share code between skills - copy patterns instead. Each script owns its entry point with its own usage/help and argument parsing.
 
+### 5. Atemporal Writing
+
+Write skills as timeless reference documentation. Describe the system's current state as if it has always worked this way.
+
+Avoid transitional language ("no longer", "now", "previously", "updated to", "changed from"). Skills get read fresh in future sessions where the transition is irrelevant noise. The reader cares about how things work today, not their history.
+
+Heuristic: if a sentence becomes wrong or confusing the moment someone reads it outside the context of the change that prompted it, rewrite it in the present tense describing only the current behavior.
+
+```markdown
+# Bad: anchored to a specific change
+The script no longer requires --yes; it now prompts interactively instead.
+
+# Good: timeless
+The script prompts interactively before destructive actions.
+```
+
+This applies to SKILL.md, reference docs, script comments, and usage strings alike. Put transition notes in commit messages and changelogs, not in the skill itself.
+
 ---
 
 ## Script Template
