@@ -3,13 +3,13 @@ name: skill-design-philosophy
 description: >
   Design philosophy for creating outstanding Claude Code skills.
   Use when: creating a new skill, improving an existing skill, designing script interfaces.
-user-invocable: false
+user-invocable: true
 disable-model-invocation: false
 ---
 
 # Skill Design Philosophy
 
-Philosophy and principles only. Toolchain-specific quirks and implementation details belong in their respective skill docs (e.g., [php-cli-builder](../php-cli-builder/SKILL.md)).
+Philosophy and principles only. Toolchain-specific quirks and implementation details belong in their respective skill docs (e.g., [php-cli-skill-builder](../php-cli-skill-builder/SKILL.md)).
 
 **Goal**: Create skills that eliminate errors by design. Users should never encounter tool quirks - scripts handle everything internally.
 
