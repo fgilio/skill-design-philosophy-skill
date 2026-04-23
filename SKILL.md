@@ -156,6 +156,22 @@ Most APIs paginate by default. For complete results, use the tool's pagination f
 
 ## Project Structure
 
+### Repo layout
+
+Skills live at `~/dev/<name>-skill/` (the `-skill` suffix keeps repos scannable and unambiguous across an org). A symlink at `~/.claude/skills/<name>` makes the skill visible to Claude Code:
+
+```
+~/dev/gitlab-skill/SKILL.md               # source of truth
+~/.claude/skills/gitlab  -> ~/dev/gitlab-skill   # symlink (consumer-facing)
+```
+
+The symlink name matches the skill's `name` frontmatter, not the repo name — the consumer-facing handle (`gitlab`) stays terse while the repo carries the `-skill` suffix.
+
+Two variants work:
+
+- **Flat**: SKILL.md at repo root, symlink → repo root. Use for pure-skill repos.
+- **Subdir**: SKILL.md inside `skill/`, symlink → `<repo>/skill`. Use when the repo also hosts a plugin marketplace, app, or other tooling.
+
 ### Directory layout
 
 ```
@@ -163,6 +179,7 @@ skill-name/
 ├── SKILL.md              # Required: primary reference for Claude Code and humans
 ├── SPEC.md               # Optional: collaborative spec (kept after implementation)
 ├── reference.md          # Optional: deep documentation (or references/ directory)
+├── setup.sh              # Optional: install entry point (see Installation)
 ├── package.json          # TypeScript only: bin field for global access via `bun link`
 └── scripts/
     ├── setup.md              # Optional: human installation guide
@@ -170,18 +187,37 @@ skill-name/
     └── skill-resource-action # The actual scripts
 ```
 
-### Global access
+### Installation
 
-Skills with scripts should be installable for global CLI access:
+Skills with runtime dependencies ship a `setup.sh` at the repo root. Consumers run `./setup.sh` and never need to know whether the skill uses Bun, Composer, pip, or anything else. The script resolves its own location, checks for the runtime, and runs the installer:
 
-**TypeScript (Bun):** Add `bin` field to `package.json`, then `bun link`. Commands go to `~/.bun/bin/`.
-
-**Bash:** Symlink scripts to `~/.local/bin/`:
 ```bash
-for script in ~/.claude/skills/skill-name/scripts/skill-*; do
-  ln -sf "$script" ~/.local/bin/$(basename "$script")
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo "error: bun is required. Install from https://bun.sh" >&2
+  exit 1
+fi
+
+bun install
+```
+
+When scripts need global CLI access, extend `setup.sh` to link them after install:
+
+```bash
+# TypeScript skills with `bin` entries in package.json:
+bun install
+bun link         # exposes scripts as ~/.bun/bin/<command>
+
+# Bash skills:
+for script in scripts/skill-*; do
+  ln -sf "$PWD/$script" ~/.local/bin/$(basename "$script")
 done
 ```
+
+Principle 1 at the install boundary: the consumer runs one command, the script handles quirks. Skills without runtime dependencies (pure markdown, shell scripts that only need a symlink) can skip `setup.sh`.
 
 ### SKILL.md frontmatter
 
