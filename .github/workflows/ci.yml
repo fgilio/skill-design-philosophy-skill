@@ -1,9 +1,6 @@
-# Standard CI for a skill repo (Markdown, YAML, and JSON; no build).
-#
-# Gate jobs feed a single `ci-success` aggregate. Make `ci-success` the required
-# status check in branch protection, so adding or renaming a gate never touches
-# the ruleset. Keep every gate in `ci-success`'s `needs:` list.
-
+# Standard CI for a fleet repo. The gates run in the shared workflow, and
+# `ci-success` here is the one required status check on main, so adding or
+# renaming a gate never touches the ruleset.
 name: CI
 
 on:
@@ -14,8 +11,6 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # One run per ref. Superseded PR runs cancel for fast feedback. Runs on `main`
-  # never cancel each other, so every commit gets a complete `ci-success`.
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
@@ -23,39 +18,16 @@ permissions:
   contents: read
 
 jobs:
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-      # No package.json, so fetch Prettier on demand. Honors prettier.config.mjs
-      # and .prettierignore.
-      - run: npx --yes prettier@3 --check .
-
-  validate-json:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-      - name: Every tracked JSON parses
-        run: |
-          for json_file in $(git ls-files '*.json'); do
-            node -e "JSON.parse(require('fs').readFileSync('$json_file', 'utf8'))" \
-              || { echo "::error file=$json_file::invalid JSON"; exit 1; }
-          done
-
-  # The single status check branch protection requires on `main`. Runs even when
-  # a gate fails or is skipped (if: !cancelled()), but not when the run is
-  # cancelled, so a cancelled run reports as cancelled rather than failed.
+  checks:
+    uses: fgilio/claude-plugins/.github/workflows/fleet-ci.yml@5c71d77d775575186f4a0d6d7ace244271daa24e # fleet-ci 2026-11-01
+    with:
+      profile: prose
   ci-success:
     if: ${{ !cancelled() }}
-    needs: [format, validate-json]
+    needs: [checks]
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+      - uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
         with:
           jobs: ${{ toJSON(needs) }}

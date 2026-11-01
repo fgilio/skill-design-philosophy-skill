@@ -1,0 +1,20 @@
+{
+  "name": "skill-design-philosophy-skill",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.4.4",
+  "scripts": {
+    "check": "bun run fmt:check && bun run lint:md",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "lint:md": "markdownlint-cli2"
+  },
+  "trustedDependencies": [
+    "lefthook"
+  ],
+  "devDependencies": {
+    "lefthook": "2.2.2",
+    "markdownlint-cli2": "0.24.0",
+    "oxfmt": "0.75.0"
+  }
+}
