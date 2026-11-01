@@ -12,18 +12,20 @@ pre-commit:
   parallel: false
   jobs:
     - name: fix:js
-      run: bun run oxfmt --write {staged_files}
+      run: bun run oxfmt --write --no-error-on-unmatched-pattern {staged_files}
       glob: "**/*.{js,mjs,cjs}"
       stage_fixed: true
     - name: fix:config
-      run: bun run oxfmt --write {staged_files}
+      run: bun run oxfmt --write --no-error-on-unmatched-pattern {staged_files}
       glob: "**/*.{json,jsonc,yml,yaml,toml}"
       stage_fixed: true
     - name: fix:docs
-      run: bun run oxfmt --write {staged_files}
+      run: bun run oxfmt --write --no-error-on-unmatched-pattern {staged_files}
       glob: "**/*.{md,mdx}"
       stage_fixed: true
-    # --no-globs keeps markdownlint to the staged files.
-    - name: check:docs
-      run: bun run markdownlint-cli2 --no-globs {staged_files}
+    # --no-globs keeps markdownlint to the staged files. It fixes what it
+    # can, and a finding that needs a person stops the commit.
+    - name: fix:docs-lint
+      run: bun run markdownlint-cli2 --fix --no-globs {staged_files}
       glob: "**/*.{md,mdx}"
+      stage_fixed: true
