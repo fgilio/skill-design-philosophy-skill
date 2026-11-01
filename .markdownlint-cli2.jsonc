@@ -6,11 +6,14 @@
   },
   "globs": ["**/*.{md,mdx}"],
   "gitignore": true,
-  "ignores": [
-    "node_modules/**",
-    "**/results/**",
-    // The PR template is the body of a pull request description. It opens
-    // with a guidance comment and a "Closes:" line, not a heading (MD041).
-    "**/.github/pull_request_template.md",
+  "ignores": ["node_modules/**", "**/results/**"],
+  "overrides": [
+    {
+      // The PR template is the body of a pull request description. It opens
+      // with a guidance comment and a "Closes:" line, not a heading.
+      "filter": ["**/.github/pull_request_template.md"],
+      "config": { "MD041": false },
+      "combine": "merge",
+    },
   ],
 }

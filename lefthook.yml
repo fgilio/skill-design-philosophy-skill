@@ -1,28 +1,29 @@
 # Mirrors the CI format and Markdown gates on the staged files. The prose
 # and plugin checks run in CI behind ci-success. Installed by `bun install`
 # through the lefthook package's postinstall. Never bypass with --no-verify.
-# The tools run from node_modules, at the versions bun.lock pins, so a
-# missing `bun install` fails the hook instead of fetching a release.
+# `bun run` starts the tools from node_modules, at the versions bun.lock
+# pins, under Bun, so no Node install is needed. A missing `bun install`
+# fails the hook instead of fetching a release.
 min_version: 2.1.9
 glob_matcher: doublestar
 
 pre-commit:
-  parallel: true
+  # The formatters read configs they may rewrite, so the jobs run in order.
+  parallel: false
   jobs:
-    - name: fix:config
-      run: ./node_modules/.bin/oxfmt --write {staged_files}
-      glob: "**/*.{json,jsonc,yml,yaml}"
+    - name: fix:js
+      run: bun run oxfmt --write {staged_files}
+      glob: "**/*.{js,mjs,cjs}"
       stage_fixed: true
-    # markdownlint reads the file oxfmt wrote, so the two run in order.
+    - name: fix:config
+      run: bun run oxfmt --write {staged_files}
+      glob: "**/*.{json,jsonc,yml,yaml,toml}"
+      stage_fixed: true
+    - name: fix:docs
+      run: bun run oxfmt --write {staged_files}
+      glob: "**/*.{md,mdx}"
+      stage_fixed: true
     # --no-globs keeps markdownlint to the staged files.
-    - name: docs
-      group:
-        piped: true
-        jobs:
-          - name: fix:docs
-            run: ./node_modules/.bin/oxfmt --write {staged_files}
-            glob: "**/*.{md,mdx}"
-            stage_fixed: true
-          - name: check:docs
-            run: ./node_modules/.bin/markdownlint-cli2 --no-globs {staged_files}
-            glob: "**/*.{md,mdx}"
+    - name: check:docs
+      run: bun run markdownlint-cli2 --no-globs {staged_files}
+      glob: "**/*.{md,mdx}"

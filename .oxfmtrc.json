@@ -17,5 +17,5 @@
       }
     }
   ],
-  "ignorePatterns": ["node_modules", "vendor", ".claude/plans"]
+  "ignorePatterns": ["node_modules"]
 }
