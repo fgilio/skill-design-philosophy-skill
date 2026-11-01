@@ -13,7 +13,7 @@ pre-commit:
   jobs:
     - name: fix:js
       run: bun run oxfmt --write --no-error-on-unmatched-pattern {staged_files}
-      glob: "**/*.{js,mjs,cjs}"
+      glob: "**/*.{js,mjs,cjs,jsx}"
       stage_fixed: true
     - name: fix:config
       run: bun run oxfmt --write --no-error-on-unmatched-pattern {staged_files}
