@@ -15,7 +15,7 @@ Philosophy and principles only. Toolchain-specific quirks and implementation det
 
 **Loading economics**: the description is always in context (it is the routing layer that decides invocation), while the body loads only when the skill is used. So descriptions must be trigger-rich with the key use case first, and bodies carry deferred cost: long reference material and full examples are close to free.
 
-Official docs: https://code.claude.com/docs/en/skills.md
+Official docs: <https://code.claude.com/docs/en/skills.md>
 
 ---
 
@@ -133,7 +133,7 @@ Two exceptions:
 
 ### 7. Descriptions Are Read-Triggers
 
-The description routes; the body teaches. A description that summarizes the body's mechanics loads that vocabulary into every session, which defeats the deferral the body exists for. The same rule governs any resident pointer to deferred content: a CLAUDE.md line referencing a doc carries the trigger (when to read) and the path, never a summary of what the doc contains. This is principle 6 at the routing layer: precise about when to read, silent about what will be learned.
+The description routes. The body teaches. A description that summarizes the body's mechanics loads that vocabulary into every session, which defeats the deferral the body exists for. The same rule governs any resident pointer to deferred content: a CLAUDE.md line referencing a doc carries the trigger (when to read) and the path, never a summary of what the doc contains. This is principle 6 at the routing layer: precise about when to read, silent about what will be learned.
 
 Test: does this phrase help decide WHEN to invoke or read (routing key: keep) or does it describe what the reader WILL LEARN inside (content summary: cut)?
 
@@ -220,7 +220,7 @@ Most APIs paginate by default. For complete results, use the tool's pagination f
 
 Skills live at `~/dev/skills/<name>-skill/` (the `-skill` suffix keeps repos scannable and unambiguous across an org). A symlink at `~/.claude/skills/<name>` makes the skill visible to Claude Code:
 
-```
+```text
 ~/dev/skills/gitlab-skill/SKILL.md               # source of truth
 ~/.claude/skills/gitlab  -> ~/dev/skills/gitlab-skill   # symlink (consumer-facing)
 ```
@@ -234,7 +234,7 @@ Two variants work:
 
 ### Directory layout
 
-```
+```text
 skill-name/
 ├── SKILL.md              # Required: primary reference for Claude Code and humans
 ├── SPEC.md               # Optional: collaborative spec (kept after implementation)
@@ -317,7 +317,7 @@ The skill listing truncates the description at 1,536 characters.
 - [ ] Validation errors return clean JSON
 - [ ] Edge cases handled (empty results, special chars)
 
-### Knowledge Skills
+### For Knowledge Skills
 
 - [ ] Description is trigger-rich with the key use case first
 - [ ] Precise but generic: every remaining specific detail changes reader behavior

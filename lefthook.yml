@@ -1,12 +1,29 @@
-# Local git hooks via lefthook. Mirrors the CI format gate so a commit fixes
-# formatting before it can fail CI. Install once per clone with `lefthook install`.
-#
-# No package.json in this repo, so Prettier is fetched on demand with npx, the
-# same way the CI job runs it.
+# Mirrors the CI format and Markdown gates on the staged files. The prose
+# and plugin checks run in CI behind ci-success. Installed by `bun install`
+# through the lefthook package's postinstall. Never bypass with --no-verify.
+# `bun run` starts the tools from node_modules, at the versions bun.lock
+# pins, under Bun, so no Node install is needed. A missing `bun install`
+# fails the hook instead of fetching a release.
+min_version: 2.1.9
+glob_matcher: doublestar
 
 pre-commit:
-  commands:
-    format:
-      glob: "*.{md,mdx,json,yml,yaml,mjs,js}"
-      run: npx --yes prettier@3 --write {staged_files}
+  # The formatters read configs they may rewrite, so the jobs run in order.
+  parallel: false
+  jobs:
+    - name: fix:js
+      run: bun run oxfmt --write {staged_files}
+      glob: "**/*.{js,mjs,cjs}"
       stage_fixed: true
+    - name: fix:config
+      run: bun run oxfmt --write {staged_files}
+      glob: "**/*.{json,jsonc,yml,yaml,toml}"
+      stage_fixed: true
+    - name: fix:docs
+      run: bun run oxfmt --write {staged_files}
+      glob: "**/*.{md,mdx}"
+      stage_fixed: true
+    # --no-globs keeps markdownlint to the staged files.
+    - name: check:docs
+      run: bun run markdownlint-cli2 --no-globs {staged_files}
+      glob: "**/*.{md,mdx}"
